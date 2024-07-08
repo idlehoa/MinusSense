@@ -26,7 +26,7 @@ import net.minusmc.minusbounce.utils.*
 @ModuleInfo(name = "FastUse", spacedName = "Fast Use", description = "Allows you to use items faster.", category = ModuleCategory.PLAYER)
 class FastUse : Module() {
 
-    private val modeValue = ListValue("Mode", arrayOf("Instant", "OldGrim", "BetterGrim", "NewGrim", "NCP", "Matrix", "AAC", "CustomDelay", "DelayedInstant", "AACv4_2", "Minemora"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("Instant", "OldGrim", "BetterGrim", "NewGrim", "NCP", "Matrix", "AAC", "CustomDelay", "DelayedInstant", "AACv4_2", "Heromc"), "NCP")
 
     private val instantDurationDelay = IntegerValue("InstantDurationDelay", 14, 0, 35) {modeValue.get().equals("DelayedInstant")}
 
@@ -129,10 +129,10 @@ class FastUse : Module() {
                         mc.playerController.onStoppedUsingItem(mc.thePlayer)
                     }
                 }
-                "minemora" -> {
-                    mc.timer.timerSpeed = 0.5F
+                "heromc" -> {
+                    mc.timer.timerSpeed = 0.4F
                     usedTimer = true
-                    if (mc.thePlayer.ticksExisted % 2 == 0) send(2)
+                    if (mc.thePlayer.ticksExisted % 1 == 0) send(1)
                 }
             }
         }
