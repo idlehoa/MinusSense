@@ -30,10 +30,10 @@ import net.minusmc.minusbounce.utils.misc.sound.TipSoundManager
 object MinusBounce {
 
     // Client information
-    const val CLIENT_NAME = "MinusBounce"
+    const val CLIENT_NAME = "MinusSense"
     const val CLIENT_FOLDER = "MinusBounce"
-    const val CLIENT_VERSION = 294299
-    const val CLIENT_CREATOR = "CCBlueX, MinusMC Team"
+    const val CLIENT_VERSION = 1.0
+    const val CLIENT_CREATOR = "CCBlueX, MinusMC Team, Idle"
     val API_VERSION = PluginAPIVersion.VER_01
     const val CLIENT_CLOUD = "https://minusmc.github.io/MinusCloud/LiquidBounce"
     
