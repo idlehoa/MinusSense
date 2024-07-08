@@ -1,0 +1,2 @@
+[STAFF] [WATCHDOG] % banned you %name%
+[STAFF] [WATCHDOG] % reeled you

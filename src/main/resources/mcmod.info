@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "minusbounce",
+    "name": "MinusBounce",
+    "description": "",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["CCBlueX", "MinusMC"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
