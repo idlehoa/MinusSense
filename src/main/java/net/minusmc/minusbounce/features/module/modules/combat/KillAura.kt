@@ -84,7 +84,7 @@ class KillAura : Module() {
             "None",
             "AfterTick",
             "Vanilla",
-            "Polar",
+            "Semi",
             "OldIntave",
             "RightHold"
         ),
@@ -970,7 +970,7 @@ class KillAura : Module() {
                     mc.gameSettings.keyBindUseItem.pressed = true
                 return
             }
-            "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) return
+            "semi" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) return
             "keyblock" -> {
                 blockTimer.reset()
                 return

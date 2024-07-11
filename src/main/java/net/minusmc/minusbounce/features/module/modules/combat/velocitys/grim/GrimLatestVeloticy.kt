@@ -15,12 +15,12 @@ import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
 
-class GrimC07Velocity : VelocityMode("GrimC07") {
-    private val alwaysValue = BoolValue("Always", true)
-    private val onlyAirValue = BoolValue("OnlyBreakAir", true)
+class GrimLatestVelocity : VelocityMode("GrimLatest") {
+    private val alwaysValue = BoolValue("Always", false)
+    private val onlyAirValue = BoolValue("OnlyBreakAir", false)
     private val worldValue = BoolValue("BreakOnWorld", false)
-    private val sendC03Value = BoolValue("SendC03", false)
-    private val c06Value = BoolValue("Send1.17C06", false)
+    private val sendC03Value = BoolValue("SendC03", true)
+    private val c06Value = BoolValue("Send1.17C06", true)
     private val flagPauseValue = IntegerValue("FlagPause-Time", 50, 0, 5000)
 
     private var gotVelo = false
