@@ -1,7 +1,7 @@
 
 <img width="100" height="100" align="left" style="float: left; margin: 0 10px 0 0;" alt="lb++" src="src/main/resources/assets/minecraft/minusbounce/big.png">
 
-# MinusBounce Idle Fix
+# MinusSense ( MinusBounce skid )
 A free forge hacked-client for Minecraft supporting version 1.8.9 but idle skid lmao
 
 Website: https://minusbounce.lol \
@@ -32,13 +32,13 @@ Do the above and share your source code with everyone; just like we do.
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/MinusMCNetwork/MinusBounce.git
+    git clone https://github.com/idlehoa/MinusSense
     ```
    
 2. Navigate to the project directory:
 
     ```bash
-    cd MinusBounce
+    cd MinusSense
     ```
 
 3. Depending on which IDE you are using execute either of the following commands:
