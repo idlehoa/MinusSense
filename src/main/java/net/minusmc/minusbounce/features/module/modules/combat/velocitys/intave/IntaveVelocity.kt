@@ -1,25 +1,27 @@
-package net.minusmc.minusbounce.features.module.modules.combat.velocitys.intave
+package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.intave
 
-import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minusmc.minusbounce.event.PacketEvent
-import net.minecraft.network.play.server.S12PacketEntityVelocity
-import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.event.UpdateEvent
+import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.minecraft.client.settings.GameSettings
 
 class IntaveVelocity : VelocityMode("Intave") {
-    private var velocityInput = false
-    private val velocityTimer = MSTimer()
 
-    override fun onUpdate() {
-        if (mc.thePlayer.hurtTime > 1 && velocityInput) {
-            mc.thePlayer.motionX *= 0.62
-            mc.thePlayer.motionZ *= 0.62
-        }
-        if (velocityInput && (mc.thePlayer.hurtTime < 7 || mc.thePlayer.onGround) && velocityTimer.hasTimePassed(60)) 
-            velocityInput = false
+    private var jumped = 0
+
+    fun onUpdate(event: UpdateEvent) {
+        if (mc.currentScreen != null) return
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-        if (packet is S12PacketEntityVelocity) velocityInput = true
+        if (mc.thePlayer.hurtTime == 9) {
+            if (++jumped % 2 == 0 && mc.thePlayer.onGround && mc.thePlayer.isSprinting && mc.currentScreen == null) {
+                mc.gameSettings.keyBindJump.pressed = true
+                jumped = 0 // reset
+            }
+        } else {
+            mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
+        }
     }
+
 }
