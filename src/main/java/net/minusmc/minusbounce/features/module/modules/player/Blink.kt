@@ -1,21 +1,25 @@
+/*
+ * LiquidBounce+ Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/WYSI-Foundation/LiquidBouncePlus/
+ */
 package net.minusmc.minusbounce.features.module.modules.player
 
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minecraft.client.entity.EntityOtherPlayerMP
-import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
-import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.Render3DEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
+import net.minusmc.minusbounce.features.module.modules.render.BreadCumbs
 import net.minusmc.minusbounce.utils.render.ColorUtils.rainbow
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
@@ -25,17 +29,16 @@ import java.awt.Color
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
-@ModuleInfo(name = "Blink", description = "Suspends all player packets.", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "Blink", description = "Suspends all movement packets.", category = ModuleCategory.PLAYER)
 class Blink : Module() {
 
-    private val C0F = BoolValue("C0F", false)
-    private val C00 = BoolValue("C00", true)
-    private val S12 = BoolValue("S12", true)
-    private val disableSPacket = BoolValue("PacketStartwith - S", false) {!S12.get()}
+
+    val C0F = BoolValue("C0F", false)
+    val C00 = BoolValue("C00", false)
     val pulseValue = BoolValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000, "ms") {pulseValue.get()}
     private val Ground = BoolValue("BlinkOnGround", false) {pulseValue.get()}
-    private val fake = BoolValue("FakePlayer", false)
+    val fake = BoolValue("FakePlayer", false)
 
     private val packets = LinkedBlockingQueue<Packet<*>>()
     private var fakePlayer: EntityOtherPlayerMP? = null
@@ -47,7 +50,7 @@ class Blink : Module() {
         if (mc.thePlayer == null) return
         if (!pulseValue.get()) {
             if (fake.get()) {
-                fakePlayer = EntityOtherPlayerMP(mc.theWorld, mc.thePlayer.getGameProfile())
+                fakePlayer = EntityOtherPlayerMP(mc.theWorld, mc.thePlayer.gameProfile)
                 fakePlayer!!.clonePlayer(mc.thePlayer, true)
                 fakePlayer!!.copyLocationAndAnglesFrom(mc.thePlayer)
                 fakePlayer!!.rotationYawHead = mc.thePlayer.rotationYawHead
@@ -55,8 +58,8 @@ class Blink : Module() {
             }
         }
         synchronized(positions) {
-            positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.getEntityBoundingBox().minY + mc.thePlayer.getEyeHeight() / 2, mc.thePlayer.posZ))
-            positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.getEntityBoundingBox().minY, mc.thePlayer.posZ))
+            positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight() / 2, mc.thePlayer.posZ))
+            positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY, mc.thePlayer.posZ))
         }
         pulseTimer.reset()
     }
@@ -76,14 +79,7 @@ class Blink : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (mc.thePlayer == null || disableLogger || !(Ground.get() || !mc.thePlayer.onGround)) return
-        if (packet is C03PacketPlayer) // Cancel all player stuff
-            event.cancelEvent()
-        if (disableSPacket.get() && packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) { // Lol this bypass intave
-            if (mc.thePlayer.ticksExisted < 20) return
-            event.cancelEvent()
-            packets.add(packet as Packet<INetHandlerPlayClient>)
-        }
-        if (S12.get() && packet is S12PacketEntityVelocity) // Lol this bypass outtave
+        if (packet is C03PacketPlayer) // Cancel all movement stuff
             event.cancelEvent()
         if (packet is C04PacketPlayerPosition || packet is C06PacketPlayerPosLook ||
             packet is C08PacketPlayerBlockPlacement ||
@@ -96,10 +92,37 @@ class Blink : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
-        synchronized(positions) { positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.getEntityBoundingBox().minY, mc.thePlayer.posZ)) }
+        synchronized(positions) { positions.add(doubleArrayOf(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY, mc.thePlayer.posZ)) }
         if (pulseValue.get() && pulseTimer.hasTimePassed(pulseDelayValue.get().toLong())) {
             blink()
             pulseTimer.reset()
+        }
+    }
+
+    @EventTarget
+    fun onRender3D(event: Render3DEvent?) {
+        val breadcrumbs = MinusBounce.moduleManager.getModule(BreadCumbs::class.java)
+        val color = if (breadcrumbs?.colorRainbow?.get() == true) rainbow() else breadcrumbs?.colorRedValue?.let { Color(it.get(), breadcrumbs.colorGreenValue.get(), breadcrumbs.colorBlueValue.get()) }
+        synchronized(positions) {
+            GL11.glPushMatrix()
+            GL11.glDisable(GL11.GL_TEXTURE_2D)
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+            GL11.glEnable(GL11.GL_LINE_SMOOTH)
+            GL11.glEnable(GL11.GL_BLEND)
+            GL11.glDisable(GL11.GL_DEPTH_TEST)
+            mc.entityRenderer.disableLightmap()
+            GL11.glBegin(GL11.GL_LINE_STRIP)
+            val renderPosX: Double = mc.renderManager.viewerPosX
+            val renderPosY: Double = mc.renderManager.viewerPosY
+            val renderPosZ: Double = mc.renderManager.viewerPosZ
+            for (pos in positions) GL11.glVertex3d(pos[0] - renderPosX, pos[1] - renderPosY, pos[2] - renderPosZ)
+            GL11.glColor4d(1.0, 1.0, 1.0, 1.0)
+            GL11.glEnd()
+            GL11.glEnable(GL11.GL_DEPTH_TEST)
+            GL11.glDisable(GL11.GL_LINE_SMOOTH)
+            GL11.glDisable(GL11.GL_BLEND)
+            GL11.glEnable(GL11.GL_TEXTURE_2D)
+            GL11.glPopMatrix()
         }
     }
 
@@ -110,7 +133,7 @@ class Blink : Module() {
         try {
             disableLogger = true
             while (!packets.isEmpty()) {
-                mc.getNetHandler().getNetworkManager().sendPacket(packets.take())
+                mc.netHandler.networkManager.sendPacket(packets.take())
             }
             disableLogger = false
         } catch (e: Exception) {
